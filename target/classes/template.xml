@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+	xmlns:http-transform="http://www.mulesoft.org/schema/mule/http-policy-transform"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd
+			   http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+			   http://www.mulesoft.org/schema/mule/http-policy-transform http://www.mulesoft.org/schema/mule/http-policy-transform/current/mule-http-policy-transform.xsd
+			   http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+
+	<http-policy:proxy
+		name="{{{policyId}}}-custom-policy">
+		<http-policy:source>
+			<try>
+
+				<set-variable variableName="client"
+					value='#[attributes.headers["{{{header}}}"]]' />
+
+				<validation:is-not-null
+					value="#[vars.client]"
+					message='#["No header with name " ++ "{{{header}}}" ++ " provided"]' />
+
+				<http-policy:execute-next />
+
+				<error-handler>
+					<on-error-continue logException="false">
+
+						<http-transform:set-response
+							statusCode="401">
+							<http-transform:body>#[
+								output application/json
+								---
+								{"error":
+								"Missing header " ++ "{{{header}}}"}
+								]
+							</http-transform:body>
+						</http-transform:set-response>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</http-policy:source>
+	</http-policy:proxy>
+
+</mule>

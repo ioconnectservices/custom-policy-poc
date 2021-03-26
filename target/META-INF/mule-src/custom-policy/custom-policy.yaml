@@ -1,0 +1,19 @@
+id: custom-policy
+name: custom-policy
+description: custom policy for testing purposes
+category: Custom
+type: custom
+resourceLevelSupported: true
+encryptionSupported: false
+standalone: true
+requiredCharacteristics: []
+providedCharacteristics: []
+configuration:
+ - propertyName: header 
+   name: Header 
+   description: A header the user define
+   type: string 
+   defaultValue: header
+   optional: false 
+   sensitive: false 
+   allowMultiple: false 
